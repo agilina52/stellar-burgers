@@ -36,15 +36,20 @@ import { AppHeader, Modal, IngredientDetails, OrderInfo } from '@components';
 
 import '../../index.css';
 import styles from './app.module.css';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from '../../services/store';
+import { getUser } from '../../services/userProfileSlice';
 
 // Компонент для защищенных маршрутов
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   // TODO: Заменить на реальную проверку из Redux
-  const isAuthenticated = false;
-  if (!isAuthenticated) {
-    return <Navigate to='/login' replace />;
-  }
-  return children;
+  // const isAuthenticated = false;
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+  // if (!isAuthenticated) {
+  //   return <Navigate to='/login' replace />;
+  // }
+  // return children;
+  return isAuthenticated ? <>{children}</> : <Navigate to='/login' replace />;
 };
 
 // Компонент модального окна для заказов
@@ -75,71 +80,87 @@ const IngredientModal = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const AppContent = () => (
-  <div className={styles.app}>
-    <AppHeader />
-    <Routes>
-      {/* Основные маршруты */}
-      <Route path='/' element={<ConstructorPage />} />
-      <Route path='/feed' element={<Feed />} />
+const AppContent = () => {
+  const location = useLocation();
+  const background = location.state?.background;
+  const additionalData = location.state?.additionalData;
+  const dispatch = useDispatch();
+  console.log(background, additionalData);
 
-      {/* Модальные маршруты */}
-      <Route
-        path='/feed/:number'
-        element={
-          <OrderModal>
-            <OrderInfo />
-          </OrderModal>
-        }
-      />
-      <Route
-        path='/ingredients/:id'
-        element={
-          <IngredientModal>
-            <IngredientDetails />
-          </IngredientModal>
-        }
-      />
+  useEffect(() => {
+    console.log('Additional Data in effect:', additionalData);
+  }, [additionalData]);
 
-      {/* Маршруты авторизации */}
-      <Route path='/login' element={<Login />} />
-      <Route path='/register' element={<Register />} />
-      <Route path='/forgot-password' element={<ForgotPassword />} />
-      <Route path='/reset-password' element={<ResetPassword />} />
+  useEffect(() => {
+    console.log('getUser');
+    dispatch(getUser());
+  }, []);
+  return (
+    <div className={styles.app}>
+      <AppHeader />
+      <Routes>
+        {/* Основные маршруты */}
+        <Route path='/' element={<ConstructorPage />} />
+        <Route path='/feed' element={<Feed />} />
 
-      {/* Защищённые маршруты */}
-      <Route
-        path='/profile'
-        element={
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path='/profile/orders'
-        element={
-          <ProtectedRoute>
-            <ProfileOrders />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path='/profile/orders/:number'
-        element={
-          <ProtectedRoute>
+        {/* Модальные маршруты */}
+        <Route
+          path='/feed/:number'
+          element={
             <OrderModal>
               <OrderInfo />
             </OrderModal>
-          </ProtectedRoute>
-        }
-      />
+          }
+        />
+        <Route
+          path='/ingredients/:id'
+          element={
+            // <IngredientModal>
+            <IngredientDetails />
+            // </IngredientModal>
+          }
+        />
 
-      {/* 404 страница */}
-      <Route path='*' element={<NotFound404 />} />
-    </Routes>
-  </div>
-);
+        {/* Маршруты авторизации */}
+        <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
+        <Route path='/forgot-password' element={<ForgotPassword />} />
+        <Route path='/reset-password' element={<ResetPassword />} />
+
+        {/* Защищённые маршруты */}
+        <Route
+          path='/profile'
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/profile/orders'
+          element={
+            <ProtectedRoute>
+              <ProfileOrders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/profile/orders/:number'
+          element={
+            <ProtectedRoute>
+              <OrderModal>
+                <OrderInfo />
+              </OrderModal>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 404 страница */}
+        <Route path='*' element={<NotFound404 />} />
+      </Routes>
+    </div>
+  );
+};
 
 const App = () => (
   <Router>

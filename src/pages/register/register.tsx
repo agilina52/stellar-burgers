@@ -13,15 +13,14 @@ export const Register: FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // добавлен
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useSelector((state) => state.user);
 
-  const user = useSelector(getUserProfileState);
-  // добавлен
   useEffect(() => {
-    if (user.name) {
+    if (isAuthenticated) {
       navigate('/');
     }
-  }, [user, navigate]);
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
