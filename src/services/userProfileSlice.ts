@@ -54,6 +54,7 @@ export const userProfileSlice = createSlice({
     },
     setUser: (state, action: PayloadAction<TUser>) => {
       state.user = action.payload;
+      console.log(action.payload);
       state.isAuthenticated = !!action.payload.name && !!action.payload.email;
     },
     setOrders: (state, action: PayloadAction<TOrder[]>) => {

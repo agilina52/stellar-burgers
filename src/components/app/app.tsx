@@ -1,18 +1,3 @@
-// import { ConstructorPage } from '@pages';
-// import '../../index.css';
-// import styles from './app.module.css';
-
-// import { AppHeader } from '@components';
-
-// const App = () => (
-//   <div className={styles.app}>
-//     <AppHeader />
-//     <ConstructorPage />
-//   </div>
-// );
-
-// export default App;
-
 import {
   BrowserRouter as Router,
   Routes,
@@ -36,90 +21,76 @@ import { AppHeader, Modal, IngredientDetails, OrderInfo } from '@components';
 
 import '../../index.css';
 import styles from './app.module.css';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from '../../services/store';
 import { getUser } from '../../services/userProfileSlice';
+import { ProtectedRoute } from '../protectedRoute';
+import { BurgerModal } from '../burgerModal';
 
-// Компонент для защищенных маршрутов
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  // TODO: Заменить на реальную проверку из Redux
-  // const isAuthenticated = false;
-  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
-  // if (!isAuthenticated) {
-  //   return <Navigate to='/login' replace />;
-  // }
-  // return children;
-  return isAuthenticated ? <>{children}</> : <Navigate to='/login' replace />;
-};
+// const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+//   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+//   const dispatch = useDispatch();
+//   const [isLoading, setIsLoading] = useState(true);
 
-// Компонент модального окна для заказов
-const OrderModal = ({ children }: { children: React.ReactNode }) => {
-  const navigate = useNavigate();
-  const handleClose = () => {
-    navigate(-1);
-  };
+//   useEffect(() => {
+//     const checkAuth = async () => {
+//       try {
+//         await dispatch(getUser());
+//       } catch (error) {
+//         console.error('Auth check failed:', error);
+//       } finally {
+//         setIsLoading(false);
+//       }
+//     };
 
-  return (
-    <Modal title='Детали заказа' onClose={handleClose}>
-      {children}
-    </Modal>
-  );
-};
+//     checkAuth();
+//   }, [dispatch]);
 
-// Компонент модального окна для ингредиентов
-const IngredientModal = ({ children }: { children: React.ReactNode }) => {
-  const navigate = useNavigate();
-  const handleClose = () => {
-    navigate(-1);
-  };
+//   if (isLoading) {
+//     return <div>Loading...</div>;
+//   }
 
-  return (
-    <Modal title='Детали ингредиента' onClose={handleClose}>
-      {children}
-    </Modal>
-  );
-};
+//   return isAuthenticated ? <>{children}</> : <Navigate to='/login' replace />;
+// };
+
+// const BurgerModal = ({
+//   children,
+//   title
+// }: {
+//   children: React.ReactNode;
+//   title: string;
+// }) => {
+//   const navigate = useNavigate();
+//   const handleClose = () => {
+//     navigate(-1);
+//   };
+//   return (
+//     <Modal title={title} onClose={handleClose}>
+//       {children}
+//     </Modal>
+//   );
+// };
 
 const AppContent = () => {
   const location = useLocation();
-  const background = location.state?.background;
-  const additionalData = location.state?.additionalData;
   const dispatch = useDispatch();
-  console.log(background, additionalData);
+  const background = location.state?.background;
 
   useEffect(() => {
-    console.log('Additional Data in effect:', additionalData);
-  }, [additionalData]);
-
-  useEffect(() => {
-    console.log('getUser');
     dispatch(getUser());
-  }, []);
+  }, [dispatch]);
+
   return (
     <div className={styles.app}>
       <AppHeader />
-      <Routes>
+
+      <Routes location={background || location}>
         {/* Основные маршруты */}
         <Route path='/' element={<ConstructorPage />} />
         <Route path='/feed' element={<Feed />} />
-
-        {/* Модальные маршруты */}
-        <Route
-          path='/feed/:number'
-          element={
-            <OrderModal>
-              <OrderInfo />
-            </OrderModal>
-          }
-        />
-        <Route
-          path='/ingredients/:id'
-          element={
-            // <IngredientModal>
-            <IngredientDetails />
-            // </IngredientModal>
-          }
-        />
+        {/* СТРАНИЦЫ (не модальные) для прямых ссылок */}
+        <Route path='/ingredients/:id' element={<IngredientDetails />} />
+        <Route path='/feed/:number' element={<OrderInfo />} />
 
         {/* Маршруты авторизации */}
         <Route path='/login' element={<Login />} />
@@ -148,9 +119,7 @@ const AppContent = () => {
           path='/profile/orders/:number'
           element={
             <ProtectedRoute>
-              <OrderModal>
-                <OrderInfo />
-              </OrderModal>
+              <OrderInfo />
             </ProtectedRoute>
           }
         />
@@ -158,6 +127,38 @@ const AppContent = () => {
         {/* 404 страница */}
         <Route path='*' element={<NotFound404 />} />
       </Routes>
+
+      {/* модальные окна - рендерятся только когда есть backgroundLocation */}
+      {background && (
+        <Routes>
+          <Route
+            path='/ingredients/:id'
+            element={
+              <BurgerModal title='Детали ингредиента'>
+                <IngredientDetails />
+              </BurgerModal>
+            }
+          />
+          <Route
+            path='/feed/:number'
+            element={
+              <BurgerModal title='Детали заказа'>
+                <OrderInfo />
+              </BurgerModal>
+            }
+          />
+          <Route
+            path='/profile/orders/:number'
+            element={
+              <ProtectedRoute>
+                <BurgerModal title='Детали заказа'>
+                  <OrderInfo />
+                </BurgerModal>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      )}
     </div>
   );
 };

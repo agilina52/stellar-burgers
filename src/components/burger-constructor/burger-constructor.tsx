@@ -10,6 +10,7 @@ import {
 } from '../../services/store';
 import { clearOrder, createOrder } from '../../services/orderSlice';
 import { clearIngredient } from '../../services/constructorSlice';
+import { useNavigate } from 'react-router-dom';
 
 export const BurgerConstructor: FC = () => {
   /** TODO: взять переменные constructorItems, orderRequest и orderModalData из стора */
@@ -24,13 +25,20 @@ export const BurgerConstructor: FC = () => {
   const orderModalData = useSelector(getOrder);
   const constructorItems = useSelector(getBurgerConstructorState);
   const dispatch = useDispatch();
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+  const navigate = useNavigate();
 
   const onOrderClick = () => {
+    if (!isAuthenticated) {
+      navigate(`/login`);
+    }
     // if (!constructorItems.bun || orderRequest) return;
-    // TODO: jkj
     const ingredientIds = constructorItems.ingredients.map((item) => item._id);
-    ingredientIds.push(constructorItems.bun._id);
-    ingredientIds.push(constructorItems.bun._id);
+
+    if (constructorItems.bun) {
+      ingredientIds.push(constructorItems.bun._id);
+      ingredientIds.push(constructorItems.bun._id);
+    }
 
     dispatch(createOrder(ingredientIds));
   };

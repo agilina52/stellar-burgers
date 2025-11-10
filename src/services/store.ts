@@ -11,6 +11,7 @@ import {
 } from 'react-redux';
 import { orderSlice } from './orderSlice';
 import { feedSlice } from './feedSlice';
+import { orderInfoSlice } from './orderInfoSlice';
 
 const rootReducer = combineSlices(
   ingredientsSlice,
@@ -18,7 +19,8 @@ const rootReducer = combineSlices(
   constructorSlice,
   ingredientDetailsSlice,
   orderSlice,
-  feedSlice
+  feedSlice,
+  orderInfoSlice
 );
 const store = configureStore({
   reducer: rootReducer,
@@ -41,8 +43,9 @@ export const getUserOrders = (state: RootState) => state.user.orders;
 export const getOrder = (state: RootState) => state.orderUser.order;
 export const getOrderRequestState = (state: RootState) =>
   state.orderUser.isLoading;
-// Доделать
 export const getOrderInfoState = (state: RootState) => state;
+export const getOrderDetails = (state: RootState) =>
+  state.orderInfo.orderDetails;
 export const getFeedOrdersState = (state: RootState) => state.feed.orders;
 export const getFeedState = (state: RootState) => state;
 export default store;

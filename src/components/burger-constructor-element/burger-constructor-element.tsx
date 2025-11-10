@@ -13,13 +13,12 @@ export const BurgerConstructorElement: FC<BurgerConstructorElementProps> = memo(
 
     const handleMoveDown = () => {
       if (index < totalItems - 1) {
-        dispatch(moveIngredient({ fromIndex: index, toIndex: index + 1 }));
+        dispatch(moveIngredient({ from: index, to: index + 1 }));
       }
     };
-
     const handleMoveUp = () => {
       if (index > 0) {
-        dispatch(moveIngredient({ fromIndex: index, toIndex: index - 1 }));
+        dispatch(moveIngredient({ from: index, to: index - 1 }));
       }
     };
 

@@ -31,7 +31,7 @@ export const orderInfoSlice = createSlice({
   }
 });
 
-export const openOrderInfo = (number: number) => async (dispatch: any) => {
+export const fetchOrderInfo = (number: number) => async (dispatch: any) => {
   dispatch(orderInfoSlice.actions.fetchStart());
   try {
     const data = await getOrderByNumberApi(number);

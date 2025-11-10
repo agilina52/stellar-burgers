@@ -14,10 +14,11 @@ export const Login: FC = () => {
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
 
   useEffect(() => {
+    console.log(isAuthenticated);
     if (isAuthenticated) {
       navigate(`/`);
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated]);
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
