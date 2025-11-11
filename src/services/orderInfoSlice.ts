@@ -1,6 +1,7 @@
 import { TOrder } from '@utils-types';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getOrderByNumberApi } from '@api';
+import { AppDispatch } from './store';
 
 interface IOrderInfoState {
   orderDetails: TOrder | null;
@@ -31,16 +32,17 @@ export const orderInfoSlice = createSlice({
   }
 });
 
-export const fetchOrderInfo = (number: number) => async (dispatch: any) => {
-  dispatch(orderInfoSlice.actions.fetchStart());
-  try {
-    const data = await getOrderByNumberApi(number);
-    dispatch(orderInfoSlice.actions.setOrder(data.orders[0]));
-  } catch (error) {
-    console.error('Order error:', error);
-  } finally {
-    dispatch(orderInfoSlice.actions.fetchStop());
-  }
-};
+export const fetchOrderInfo =
+  (number: number) => async (dispatch: AppDispatch) => {
+    dispatch(orderInfoSlice.actions.fetchStart());
+    try {
+      const data = await getOrderByNumberApi(number);
+      dispatch(orderInfoSlice.actions.setOrder(data.orders[0]));
+    } catch (error) {
+      console.error('Order error:', error);
+    } finally {
+      dispatch(orderInfoSlice.actions.fetchStop());
+    }
+  };
 
 export const { clearOrderInfo } = orderInfoSlice.actions;

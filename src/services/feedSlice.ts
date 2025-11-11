@@ -1,6 +1,7 @@
 import { TOrder } from '@utils-types';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getFeedsApi } from '@api';
+import { AppDispatch } from './store';
 
 interface IFeedState {
   orders: TOrder[];
@@ -37,7 +38,7 @@ export const feedSlice = createSlice({
   }
 });
 
-export const fetchFeed = () => async (dispatch: any) => {
+export const fetchFeed = () => async (dispatch: AppDispatch) => {
   dispatch(feedSlice.actions.fetchStart());
   try {
     const data = await getFeedsApi();

@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getIngredientsApi } from '@api';
 import { TIngredient } from '@utils-types';
+import { AppDispatch } from './store';
 
 interface IIngredientsState {
   items: TIngredient[];
@@ -29,7 +30,7 @@ export const ingredientsSlice = createSlice({
   }
 });
 
-export const fetchIngredients = () => async (dispatch: any) => {
+export const fetchIngredients = () => async (dispatch: AppDispatch) => {
   dispatch(ingredientsSlice.actions.fetchIngredientsStart());
   try {
     const ingredients = await getIngredientsApi();

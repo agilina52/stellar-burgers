@@ -11,6 +11,7 @@ import { TUser } from '@utils-types';
 import { setCookie } from '../utils/cookie';
 import { logoutApi } from '@api';
 import { TOrder } from '@utils-types';
+import { AppDispatch } from './store';
 
 interface IUserProfileState {
   isLoading: boolean;
@@ -64,7 +65,7 @@ export const userProfileSlice = createSlice({
 });
 
 export const login =
-  (email: string, password: string) => async (dispatch: any) => {
+  (email: string, password: string) => async (dispatch: AppDispatch) => {
     dispatch(userProfileSlice.actions.fetchStart());
     try {
       const data = await loginUserApi({ email, password });
@@ -76,7 +77,7 @@ export const login =
     }
   };
 
-export const getUser = () => async (dispatch: any) => {
+export const getUser = () => async (dispatch: AppDispatch) => {
   dispatch(userProfileSlice.actions.fetchStart());
   try {
     const data = await getUserApi();
@@ -87,7 +88,8 @@ export const getUser = () => async (dispatch: any) => {
 };
 
 export const register =
-  (email: string, password: string, name: string) => async (dispatch: any) => {
+  (email: string, password: string, name: string) =>
+  async (dispatch: AppDispatch) => {
     dispatch(userProfileSlice.actions.fetchStart());
     try {
       const user = await registerUserApi({ email, password, name });
@@ -101,7 +103,7 @@ export const register =
 
 export const updateProfile =
   (userData: { name?: string; email?: string; password?: string }) =>
-  async (dispatch: any) => {
+  async (dispatch: AppDispatch) => {
     dispatch(userProfileSlice.actions.fetchStart());
     try {
       const data = await updateUserApi(userData);
@@ -112,7 +114,7 @@ export const updateProfile =
     }
   };
 
-export const fetchUserOrders = () => async (dispatch: any) => {
+export const fetchUserOrders = () => async (dispatch: AppDispatch) => {
   dispatch(userProfileSlice.actions.fetchStart());
   try {
     const data = await getOrdersApi();
@@ -122,7 +124,7 @@ export const fetchUserOrders = () => async (dispatch: any) => {
   }
 };
 
-export const logout = () => async (dispatch: any) => {
+export const logout = () => async (dispatch: AppDispatch) => {
   try {
     await logoutApi();
   } catch (error) {

@@ -1,6 +1,8 @@
 import { TOrder } from '@utils-types';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { orderBurgerApi } from '@api';
+import { AppDispatch } from './store';
+import { clearIngredient } from './constructorSlice';
 
 interface IOrderState {
   order: TOrder | null;
@@ -32,11 +34,13 @@ export const orderSlice = createSlice({
 });
 
 export const createOrder =
-  (ingredientIds: string[]) => async (dispatch: any) => {
+  (ingredientIds: string[]) => async (dispatch: AppDispatch) => {
     dispatch(orderSlice.actions.fetchStart());
     try {
       const data = await orderBurgerApi(ingredientIds);
       dispatch(orderSlice.actions.setOrder(data.order));
+      // Очищаем конструктор после успешного создания заказа
+      dispatch(clearIngredient());
     } catch (error) {
       console.error('Order error:', error);
     } finally {
