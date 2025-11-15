@@ -14,7 +14,6 @@ export const Login: FC = () => {
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
 
   useEffect(() => {
-    console.log(isAuthenticated);
     if (isAuthenticated) {
       navigate(`/`);
     }
