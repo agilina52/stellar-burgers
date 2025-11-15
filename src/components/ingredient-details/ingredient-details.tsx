@@ -44,7 +44,7 @@ export const IngredientDetails: FC = () => {
   }
 
   return (
-    <div className='center-component'>
+    <div className='center-component' data-testid='ingredient-modal'>
       <IngredientDetailsUI ingredientData={ingredient} />
     </div>
   );

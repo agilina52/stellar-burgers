@@ -27,50 +27,6 @@ import { getUser } from '../../services/userProfileSlice';
 import { ProtectedRoute } from '../protectedRoute';
 import { BurgerModal } from '../burgerModal';
 
-// const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-//   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
-//   const dispatch = useDispatch();
-//   const [isLoading, setIsLoading] = useState(true);
-
-//   useEffect(() => {
-//     const checkAuth = async () => {
-//       try {
-//         await dispatch(getUser());
-//       } catch (error) {
-//         console.error('Auth check failed:', error);
-//       } finally {
-//         setIsLoading(false);
-//       }
-//     };
-
-//     checkAuth();
-//   }, [dispatch]);
-
-//   if (isLoading) {
-//     return <div>Loading...</div>;
-//   }
-
-//   return isAuthenticated ? <>{children}</> : <Navigate to='/login' replace />;
-// };
-
-// const BurgerModal = ({
-//   children,
-//   title
-// }: {
-//   children: React.ReactNode;
-//   title: string;
-// }) => {
-//   const navigate = useNavigate();
-//   const handleClose = () => {
-//     navigate(-1);
-//   };
-//   return (
-//     <Modal title={title} onClose={handleClose}>
-//       {children}
-//     </Modal>
-//   );
-// };
-
 const AppContent = () => {
   const location = useLocation();
   const dispatch = useDispatch();

@@ -6,15 +6,8 @@ import { getBurgerConstructorState, useSelector } from '../../services/store';
 
 export const IngredientsCategory = forwardRef<
   HTMLUListElement,
-  TIngredientsCategoryProps
->(({ title, titleRef, ingredients }, ref) => {
-  /** TODO: взять переменную из стора */
-  // const burgerConstructor = {
-  //   bun: {
-  //     _id: ''
-  //   },
-  //   ingredients: []
-  // };
+  TIngredientsCategoryProps & { 'data-testid'?: string }
+>(({ title, titleRef, ingredients, 'data-testid': dataTestId }, ref) => {
   const burgerConstructor = useSelector(getBurgerConstructorState);
 
   const ingredientsCounters = useMemo(() => {
@@ -31,6 +24,7 @@ export const IngredientsCategory = forwardRef<
   return (
     <IngredientsCategoryUI
       title={title}
+      data-testid={dataTestId}
       titleRef={titleRef}
       ingredients={ingredients}
       ingredientsCounters={ingredientsCounters}
