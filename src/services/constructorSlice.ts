@@ -19,7 +19,6 @@ export const constructorSlice = createSlice({
     },
     addIngredient: (state, action: PayloadAction<TIngredient>) => {
       if (action.payload.type === 'bun') {
-        // присваиваем объект булки целиком
         state.bun = action.payload;
       } else {
         const localId = nanoid();

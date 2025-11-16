@@ -1,4 +1,3 @@
-// Мокаем модуль @api
 jest.mock('@api', () => ({
   getIngredientsApi: jest.fn()
 }));
@@ -9,14 +8,40 @@ import ingredientReducer, {
   setIngredients,
   fetchIngredients
 } from '../ingredientsSlice';
+import { TIngredient } from '@utils-types';
+import type { AppDispatch } from '../store';
 
-// Импорт мокнутой функции
 import { getIngredientsApi } from '@api';
 
-// Типизируем мок для удобства работы с mockResolvedValue / mockRejectedValue
 const mockedGetIngredientsApi = getIngredientsApi as jest.MockedFunction<
   typeof getIngredientsApi
 >;
+
+type IngredientsState = {
+  items: TIngredient[];
+  isLoading: boolean;
+};
+
+type TestStore = {
+  dispatch: AppDispatch;
+  getState: () => { ingredients: IngredientsState };
+};
+
+const mockIngredient: TIngredient = {
+  _id: 'i1',
+  name: 'Ingredient 1',
+  type: 'main',
+  proteins: 10,
+  fat: 5,
+  carbohydrates: 15,
+  calories: 100,
+  price: 50,
+  image: 'image-url',
+  image_large: 'image-large-url',
+  image_mobile: 'image-mobile-url'
+};
+
+const mockIngredients: TIngredient[] = [mockIngredient];
 
 describe('ingredientsSlice — reducer & thunk', () => {
   afterEach(() => {
@@ -30,18 +55,18 @@ describe('ingredientsSlice — reducer & thunk', () => {
         ingredientsSlice.actions.fetchIngredientsStart()
       );
       expect(next.isLoading).toBe(true);
+      expect(next.items).toEqual([]);
     });
 
     it('setIngredients записывает items и сбрасывает isLoading', () => {
-      const start = { items: [], isLoading: true } as any;
-      const payload = [{ _id: 'i1', name: 'Ingredient 1' }] as any;
-      const next = ingredientReducer(start, setIngredients(payload));
-      expect(next.items).toEqual(payload);
+      const start: IngredientsState = { items: [], isLoading: true };
+      const next = ingredientReducer(start, setIngredients(mockIngredients));
+      expect(next.items).toEqual(mockIngredients);
       expect(next.isLoading).toBe(false);
     });
 
-    it('fetchIngredientsError сбрасывает isLoading (ошибка в данном слайсе не сохраняется)', () => {
-      const start = { items: [], isLoading: true } as any;
+    it('fetchIngredientsError сбрасывает isLoading', () => {
+      const start: IngredientsState = { items: [], isLoading: true };
       const next = ingredientReducer(
         start,
         ingredientsSlice.actions.fetchIngredientsError()
@@ -49,38 +74,76 @@ describe('ingredientsSlice — reducer & thunk', () => {
       expect(next.isLoading).toBe(false);
       expect(next.items).toEqual([]);
     });
+
+    it('сохраняет существующие items при fetchIngredientsError', () => {
+      const start: IngredientsState = {
+        items: mockIngredients,
+        isLoading: true
+      };
+      const next = ingredientReducer(
+        start,
+        ingredientsSlice.actions.fetchIngredientsError()
+      );
+      expect(next.isLoading).toBe(false);
+      expect(next.items).toEqual(mockIngredients);
+    });
   });
 
   describe('thunk fetchIngredients (async flow)', () => {
-    it('успешный запрос: записывает данные и isLoading = false', async () => {
-      const expected = [{ _id: 'i1', name: 'A' }] as any;
-      mockedGetIngredientsApi.mockResolvedValue(expected);
+    let store: TestStore;
 
-      const store = configureStore({
+    beforeEach(() => {
+      const testStore = configureStore({
         reducer: { ingredients: ingredientReducer }
-      });
+      }) as unknown as TestStore;
 
-      await store.dispatch(fetchIngredients() as any);
+      store = testStore;
+    });
+
+    it('успешный запрос: записывает данные и isLoading = false', async () => {
+      mockedGetIngredientsApi.mockResolvedValue(mockIngredients);
+
+      await store.dispatch(fetchIngredients());
 
       const state = store.getState().ingredients;
-      expect(state.items).toEqual(expected);
+      expect(state.items).toEqual(mockIngredients);
       expect(state.isLoading).toBe(false);
-      expect(mockedGetIngredientsApi).toHaveBeenCalled();
+      expect(mockedGetIngredientsApi).toHaveBeenCalledTimes(1);
     });
 
     it('ошибка запроса: диспатчит fetchIngredientsError и isLoading = false', async () => {
       mockedGetIngredientsApi.mockRejectedValue(new Error('network fail'));
 
-      const store = configureStore({
-        reducer: { ingredients: ingredientReducer }
-      });
-
-      await store.dispatch(fetchIngredients() as any);
+      await store.dispatch(fetchIngredients());
 
       const state = store.getState().ingredients;
       expect(state.items).toEqual([]);
       expect(state.isLoading).toBe(false);
-      expect(mockedGetIngredientsApi).toHaveBeenCalled();
+      expect(mockedGetIngredientsApi).toHaveBeenCalledTimes(1);
+    });
+
+    it('сохраняет предыдущие данные при ошибке запроса', async () => {
+      const existingIngredients: IngredientsState = {
+        items: mockIngredients,
+        isLoading: false
+      };
+
+      const testStore = configureStore({
+        reducer: { ingredients: ingredientReducer },
+        preloadedState: {
+          ingredients: existingIngredients
+        }
+      }) as unknown as TestStore;
+
+      store = testStore;
+
+      mockedGetIngredientsApi.mockRejectedValue(new Error('network fail'));
+
+      await store.dispatch(fetchIngredients());
+
+      const state = store.getState().ingredients;
+      expect(state.items).toEqual(mockIngredients);
+      expect(state.isLoading).toBe(false);
     });
   });
 });
