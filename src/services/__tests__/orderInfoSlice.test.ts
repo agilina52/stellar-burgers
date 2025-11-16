@@ -95,12 +95,14 @@ describe('orderInfoSlice — reducer & thunk fetchOrderInfo', () => {
       expect(next.isLoading).toBe(false);
     });
 
-    it('setOrder с undefined оставляет orderDetails как undefined (поведение Redux Toolkit)', () => {
-      const next = orderInfoReducer(
-        undefined,
-        orderInfoSlice.actions.setOrder(undefined as any)
-      );
-      expect(next.orderDetails).toBeUndefined();
+    // Улучшенная версия теста без any
+    it('setOrder с null сбрасывает orderDetails', () => {
+      const action = {
+        type: orderInfoSlice.actions.setOrder.type,
+        payload: null
+      };
+      const next = orderInfoReducer(undefined, action);
+      expect(next.orderDetails).toBeNull();
     });
   });
 
@@ -110,9 +112,9 @@ describe('orderInfoSlice — reducer & thunk fetchOrderInfo', () => {
     beforeEach(() => {
       const testStore = configureStore({
         reducer: { orderInfo: orderInfoReducer }
-      }) as unknown as TestStore;
+      });
 
-      store = testStore;
+      store = testStore as TestStore;
     });
 
     it('успешный запрос: записывает orderDetails и isLoading = false', async () => {
@@ -173,9 +175,9 @@ describe('orderInfoSlice — reducer & thunk fetchOrderInfo', () => {
             isLoading: false
           }
         }
-      }) as unknown as TestStore;
+      });
 
-      store = testStore;
+      store = testStore as TestStore;
 
       mockedGetOrderByNumberApi.mockRejectedValue(new Error('network fail'));
 
@@ -225,9 +227,9 @@ describe('orderInfoSlice — reducer & thunk fetchOrderInfo', () => {
             isLoading: false
           }
         }
-      }) as unknown as TestStore;
+      });
 
-      store = testStore;
+      store = testStore as TestStore;
 
       const newOrder: TOrder = {
         ...mockOrder,
