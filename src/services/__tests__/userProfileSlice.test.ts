@@ -90,9 +90,8 @@ type AuthResponse = {
   refreshToken: string;
 };
 
-const originalLocalStorage = (global as any).localStorage as
-  | Storage
-  | undefined;
+// Исправляем типизацию для localStorage
+const originalLocalStorage = global.localStorage;
 
 const mockLocalStorage = {
   setItem: jest.fn(),
@@ -105,6 +104,7 @@ const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe('userProfileSlice — редьюсер и thunks', () => {
   beforeEach(() => {
+    // Создаем более типобезопасный мок для localStorage
     Object.defineProperty(global, 'localStorage', {
       value: mockLocalStorage,
       configurable: true,
@@ -121,15 +121,12 @@ describe('userProfileSlice — редьюсер и thunks', () => {
   });
 
   afterEach(() => {
-    if (originalLocalStorage !== undefined) {
-      Object.defineProperty(global, 'localStorage', {
-        value: originalLocalStorage,
-        configurable: true,
-        writable: true
-      });
-    } else {
-      delete (global as any).localStorage;
-    }
+    // Восстанавливаем оригинальный localStorage
+    Object.defineProperty(global, 'localStorage', {
+      value: originalLocalStorage,
+      configurable: true,
+      writable: true
+    });
 
     jest.restoreAllMocks();
     jest.resetAllMocks();
@@ -214,7 +211,10 @@ describe('userProfileSlice — редьюсер и thunks', () => {
         reducer: { user: userReducer }
       });
 
-      store = testStore as TestStore;
+      store = {
+        dispatch: testStore.dispatch,
+        getState: () => ({ user: testStore.getState().user })
+      };
     });
 
     it('logout (успех): очищает user, cookie и localStorage', async () => {
@@ -233,7 +233,10 @@ describe('userProfileSlice — редьюсер и thunks', () => {
         }
       });
 
-      store = testStoreWithAuth as TestStore;
+      store = {
+        dispatch: testStoreWithAuth.dispatch,
+        getState: () => ({ user: testStoreWithAuth.getState().user })
+      };
 
       await store.dispatch(logout());
       await flushPromises();
@@ -264,7 +267,10 @@ describe('userProfileSlice — редьюсер и thunks', () => {
         }
       });
 
-      store = testStoreWithAuth as TestStore;
+      store = {
+        dispatch: testStoreWithAuth.dispatch,
+        getState: () => ({ user: testStoreWithAuth.getState().user })
+      };
 
       await store.dispatch(logout());
       await flushPromises();
@@ -288,7 +294,10 @@ describe('userProfileSlice — редьюсер и thunks', () => {
         reducer: { user: userReducer }
       });
 
-      store = testStore as TestStore;
+      store = {
+        dispatch: testStore.dispatch,
+        getState: () => ({ user: testStore.getState().user })
+      };
     });
 
     it('должен корректно обрабатывать последовательные вызовы thunks', async () => {
