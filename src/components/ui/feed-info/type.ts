@@ -1,5 +1,16 @@
+import { TOrder } from '@utils-types';
+
+// добавлен тип, смотреть FeedInfo.stories.ts
+export type TFeed = {
+  orders: TOrder[];
+  total: number;
+  isLoading: boolean;
+  totalToday: number;
+};
+
+// заменен на добавленный тип
 export type FeedInfoUIProps = {
-  feed: any;
+  feed: TFeed;
   readyOrders: number[];
   pendingOrders: number[];
 };

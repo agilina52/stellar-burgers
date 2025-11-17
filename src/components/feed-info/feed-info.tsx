@@ -11,13 +11,11 @@ const getOrders = (orders: TOrder[], status: string): number[] =>
     .slice(0, 20);
 
 export const FeedInfo: FC = () => {
-  /** TODO: взять переменные из стора */
-  // селектором вытащить  из стейта getFeedState нужные ключи
   const dispatch = useDispatch();
-  const { orders, total, totalToday } = useSelector((state) => state.feed);
-  // const orders: TOrder[] = [];
-  //{ total, totalToday }
-  const feed = { total, totalToday };
+  const { orders, total, totalToday, isLoading } = useSelector(
+    (state) => state.feed
+  );
+  const feed = { total, totalToday, orders, isLoading };
 
   const readyOrders = getOrders(orders, 'done');
 

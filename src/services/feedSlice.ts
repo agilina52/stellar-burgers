@@ -51,3 +51,4 @@ export const fetchFeed = () => async (dispatch: AppDispatch) => {
 };
 
 export const {} = feedSlice.actions;
+export default feedSlice.reducer;
