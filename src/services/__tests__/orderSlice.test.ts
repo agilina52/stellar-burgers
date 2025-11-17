@@ -14,7 +14,6 @@ const mockedOrderBurgerApi = orderBurgerApi as jest.MockedFunction<
   typeof orderBurgerApi
 >;
 
-// Типы для состояний
 type OrderState = {
   order: TOrder | null;
   isLoading: boolean;
@@ -35,7 +34,6 @@ type TestStore = {
   getState: () => TestState;
 };
 
-// Мок данные для тестов
 const mockBun: TIngredient = {
   _id: 'bun-1',
   name: 'Bun',
@@ -172,7 +170,7 @@ describe('orderSlice — reducer & thunk createOrder', () => {
         .spyOn(console, 'error')
         .mockImplementation(() => {});
 
-      mockedOrderBurgerApi.mockRejectedValue(new Error('network fail'));
+      mockedOrderBurgerApi.mockRejectedValue(new Error('Ошибка при создании заказа'));
 
       await store.dispatch(createOrder(['ing-1']));
 
@@ -181,7 +179,6 @@ describe('orderSlice — reducer & thunk createOrder', () => {
       expect(state.orderUser.order).toBeNull();
       expect(state.orderUser.isLoading).toBe(false);
 
-      // Конструктор не должен очищаться при ошибке
       expect(state.constructorBurger.bun).toEqual(mockBun);
       expect(state.constructorBurger.ingredients).toEqual([
         mockConstructorIngredient
@@ -189,18 +186,17 @@ describe('orderSlice — reducer & thunk createOrder', () => {
 
       expect(mockedOrderBurgerApi).toHaveBeenCalledWith(['ing-1']);
       expect(mockedOrderBurgerApi).toHaveBeenCalledTimes(1);
-
-      // ✅ Исправлено: правильное сообщение об ошибке из слайса
       expect(consoleSpy).toHaveBeenCalledWith(
         'Order error:',
-        expect.any(Error)
+        expect.objectContaining({
+          message: 'Ошибка при создании заказа'
+        })
       );
 
       consoleSpy.mockRestore();
     });
 
     it('при успешном заказе очищает конструктор даже если был предыдущий заказ', async () => {
-      // Устанавливаем существующий заказ
       const testStore = configureStore({
         reducer: {
           orderUser: orderReducer,
@@ -212,7 +208,7 @@ describe('orderSlice — reducer & thunk createOrder', () => {
             ingredients: [mockConstructorIngredient]
           },
           orderUser: {
-            order: mockOrder, // существующий заказ
+            order: mockOrder,
             isLoading: false
           }
         }
@@ -238,8 +234,8 @@ describe('orderSlice — reducer & thunk createOrder', () => {
 
       const state = store.getState();
 
-      expect(state.orderUser.order).toEqual(newOrder); // заказ обновился
-      expect(state.constructorBurger.bun).toBeNull(); // конструктор очистился
+      expect(state.orderUser.order).toEqual(newOrder);
+      expect(state.constructorBurger.bun).toBeNull();
       expect(state.constructorBurger.ingredients).toEqual([]);
     });
   });

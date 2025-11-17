@@ -95,7 +95,6 @@ describe('orderInfoSlice — reducer & thunk fetchOrderInfo', () => {
       expect(next.isLoading).toBe(false);
     });
 
-    // Улучшенная версия теста без any
     it('setOrder с null сбрасывает orderDetails', () => {
       const action = {
         type: orderInfoSlice.actions.setOrder.type,
@@ -134,7 +133,9 @@ describe('orderInfoSlice — reducer & thunk fetchOrderInfo', () => {
         .spyOn(console, 'error')
         .mockImplementation(() => {});
 
-      mockedGetOrderByNumberApi.mockRejectedValue(new Error('network fail'));
+      mockedGetOrderByNumberApi.mockRejectedValue(
+        new Error('Ошибка при загрузке информации о заказе')
+      );
 
       await store.dispatch(fetchOrderInfo(999));
 
@@ -143,10 +144,11 @@ describe('orderInfoSlice — reducer & thunk fetchOrderInfo', () => {
       expect(state.isLoading).toBe(false);
       expect(mockedGetOrderByNumberApi).toHaveBeenCalledWith(999);
       expect(mockedGetOrderByNumberApi).toHaveBeenCalledTimes(1);
-
       expect(consoleSpy).toHaveBeenCalledWith(
         'Order error:',
-        expect.any(Error)
+        expect.objectContaining({
+          message: 'Ошибка при загрузке информации о заказе'
+        })
       );
 
       consoleSpy.mockRestore();
@@ -189,8 +191,8 @@ describe('orderInfoSlice — reducer & thunk fetchOrderInfo', () => {
     });
 
     it('при пустом массиве orders вызывает setOrder с undefined и оставляет orderDetails как undefined', async () => {
-      const emptyOrdersResponse = {
-        orders: [] as TOrder[],
+      const emptyOrdersResponse: { orders: TOrder[]; success: boolean } = {
+        orders: [],
         success: true
       };
 
@@ -204,8 +206,8 @@ describe('orderInfoSlice — reducer & thunk fetchOrderInfo', () => {
     });
 
     it('при несуществующем заказе оставляет orderDetails как undefined', async () => {
-      const orderNotFoundResponse = {
-        orders: [] as TOrder[],
+      const orderNotFoundResponse: { orders: TOrder[]; success: boolean } = {
+        orders: [],
         success: true
       };
 

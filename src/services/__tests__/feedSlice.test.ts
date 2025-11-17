@@ -129,7 +129,9 @@ describe('feedSlice — reducer & thunk (default reducer export)', () => {
         .spyOn(console, 'error')
         .mockImplementation(() => {});
 
-      mockedGetFeedsApi.mockRejectedValue(new Error('network fail'));
+      mockedGetFeedsApi.mockRejectedValue(
+        new Error('Ошибка при загрузке ленты заказов')
+      );
 
       await store.dispatch(fetchFeed());
 
@@ -143,7 +145,9 @@ describe('feedSlice — reducer & thunk (default reducer export)', () => {
       expect(mockedGetFeedsApi).toHaveBeenCalledTimes(1);
       expect(consoleSpy).toHaveBeenCalledWith(
         'Order error:',
-        expect.any(Error)
+        expect.objectContaining({
+          message: 'Ошибка при загрузке ленты заказов'
+        })
       );
 
       consoleSpy.mockRestore();
